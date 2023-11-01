@@ -1,0 +1,8 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/carrest
+    username: postgres
+    password: 1111
+  jpa:
+    generate-ddl: true
