@@ -9,7 +9,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 @Entity
+@Data
+@RequiredArgsConstructor
+@NoArgsConstructor
 @Table(name = "car_type")
 public class CarType {
 
@@ -22,26 +29,4 @@ public class CarType {
     @Column(name = "body_type")
     private String carBodyType;
 
-    public CarType(final CarBodyType carBodyType) {
-    }
-
-    public CarType() {
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    public String getCarBodyType() {
-        return carBodyType;
-    }
-
-    public void setCarBodyType(final CarBodyType carBodyType) {
-        this.carBodyType = String.valueOf(carBodyType);
-    }
 }

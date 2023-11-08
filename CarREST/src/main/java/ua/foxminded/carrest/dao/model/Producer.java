@@ -7,7 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 @Entity
+@Data
+@RequiredArgsConstructor
+@NoArgsConstructor
 @Table(name = "producer")
 public class Producer {
     @Id
@@ -21,34 +28,4 @@ public class Producer {
     @Column(name = "model_name")
     private String modelName;
 
-    public Producer(final String make, final String model) {
-    }
-
-    public Producer() {
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    public String getProducerName() {
-        return producerName;
-    }
-
-    public void setProducerName(final String producerName) {
-        this.producerName = producerName;
-    }
-
-    public String getModelName() {
-        return modelName;
-    }
-
-    public void setModelName(final String modelName) {
-        this.modelName = modelName;
-    }
 }

@@ -34,13 +34,13 @@ public class TestController {
     private CarTypeRepository carTypeRepository;
 
 
-    @GetMapping
+    @GetMapping("/api/v1/cars")
     public ResponseEntity<List<Car>> getAllCar() {
         return new ResponseEntity<>(carRepository.findAll(), HttpStatus.OK);
     }
     
     @PostMapping
-    public ResponseEntity<List<Car>> saveCar(final @RequestBody List<CreateCarRequest> body) {
+    public ResponseEntity<ApiResponse> saveCar(final @RequestBody List<CreateCarRequest> body) {
       List<Car> result = new ArrayList<>();
         for (final CreateCarRequest createCarRequest : body) {
             Producer producer = new Producer();
@@ -51,7 +51,7 @@ public class TestController {
             Car car = new Car();
             car.setCarType(createCarRequest.getCarBodyType().stream().map(e -> {
                 CarType carType = new CarType();
-                carType.setCarBodyType(e);
+                carType.setCarBodyType(String.valueOf(e));
                 return carTypeRepository.save(carType);
             }).collect(Collectors.toSet()));
             car.setProducer(producer);
@@ -60,7 +60,8 @@ public class TestController {
             Car savedCar = carRepository.save(car);
             result.add(savedCar);
         }
+        ApiResponse response = new ApiResponse(result);
 
-       return new ResponseEntity<>(result, HttpStatus.OK);
+       return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
