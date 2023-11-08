@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.dao.model.Car;
 import ua.foxminded.carrest.dao.model.CarType;
 import ua.foxminded.carrest.dao.model.Producer;
@@ -22,25 +23,23 @@ import ua.foxminded.carrest.repository.ProducerRepository;
 
 @RestController
 @RequestMapping("/")
+@RequiredArgsConstructor
 public class TestController {
     
-    @Autowired
     private CarRepository carRepository;
 
-    @Autowired
     private ProducerRepository producerRepository;
 
-    @Autowired
     private CarTypeRepository carTypeRepository;
 
 
     @GetMapping("/api/v1/cars")
-    public ResponseEntity<List<Car>> getAllCar() {
-        return new ResponseEntity<>(carRepository.findAll(), HttpStatus.OK);
+    public List<Car> getAllCar() {
+        return carRepository.findAll();
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse> saveCar(final @RequestBody List<CreateCarRequest> body) {
+    public ResponseEntity<CarResponse> saveCar(final @RequestBody List<CreateCarRequest> body) {
       List<Car> result = new ArrayList<>();
         for (final CreateCarRequest createCarRequest : body) {
             Producer producer = new Producer();
@@ -60,7 +59,7 @@ public class TestController {
             Car savedCar = carRepository.save(car);
             result.add(savedCar);
         }
-        ApiResponse response = new ApiResponse(result);
+        CarResponse response = new CarResponse(result);
 
        return new ResponseEntity<>(response, HttpStatus.OK);
     }
