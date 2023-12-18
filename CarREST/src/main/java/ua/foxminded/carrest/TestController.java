@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.dao.model.Car;
+import ua.foxminded.carrest.dao.model.CarBodyType;
 import ua.foxminded.carrest.dao.model.CarType;
 import ua.foxminded.carrest.dao.model.Producer;
 import ua.foxminded.carrest.repository.CarRepository;
@@ -26,16 +27,26 @@ import ua.foxminded.carrest.repository.ProducerRepository;
 @RequiredArgsConstructor
 public class TestController {
     
-    private CarRepository carRepository;
+    private final CarRepository carRepository;
 
-    private ProducerRepository producerRepository;
+    private final ProducerRepository producerRepository;
 
-    private CarTypeRepository carTypeRepository;
+    private final CarTypeRepository carTypeRepository;
 
 
     @GetMapping("/api/v1/cars")
     public List<Car> getAllCar() {
         return carRepository.findAll();
+    }
+
+    @GetMapping("/api/v1/cartypes")
+    public List<CarType> getAllCarTypes() {
+        return carTypeRepository.findAll();
+    }
+
+    @GetMapping("/api/v1/producers")
+    public List<Producer> getAllProducers() {
+        return producerRepository.findAll();
     }
     
     @PostMapping
@@ -50,7 +61,7 @@ public class TestController {
             Car car = new Car();
             car.setCarType(createCarRequest.getCarBodyType().stream().map(e -> {
                 CarType carType = new CarType();
-                carType.setCarBodyType(String.valueOf(e));
+                carType.setCarBodyType(e);
                 return carTypeRepository.save(carType);
             }).collect(Collectors.toSet()));
             car.setProducer(producer);
