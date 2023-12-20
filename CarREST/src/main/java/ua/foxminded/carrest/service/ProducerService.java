@@ -1,6 +1,7 @@
 package ua.foxminded.carrest.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -25,12 +26,27 @@ public class ProducerService {
         producerRepository.delete(producer);
     }
 
+    public void deleteById(Long id){
+        producerRepository.deleteById(id);
+    }
+
     public Producer update(Producer producer){
         return Producer.builder()
             .producerName(producer.getProducerName())
             .id(producer.getId())
             .modelName(producer.getModelName())
             .build();
+    }
+
+    public Producer updateById(Long id, Producer updatedProducer){
+        Optional<Producer> modifiedProducer = producerRepository.findById(id);
+        modifiedProducer.get().setProducerName(updatedProducer.getProducerName());
+        modifiedProducer.get().setModelName(updatedProducer.getModelName());
+        return producerRepository.save(modifiedProducer.get());
+    }
+
+    public Producer findById(Long id){
+        return producerRepository.findById(id).get();
     }
 
 }

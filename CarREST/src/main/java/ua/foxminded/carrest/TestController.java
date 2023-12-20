@@ -3,51 +3,35 @@ package ua.foxminded.carrest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ua.foxminded.carrest.custom.response.CarResponse;
 import ua.foxminded.carrest.dao.model.Car;
-import ua.foxminded.carrest.dao.model.CarBodyType;
 import ua.foxminded.carrest.dao.model.CarType;
 import ua.foxminded.carrest.dao.model.Producer;
-import ua.foxminded.carrest.repository.CarRepository;
-import ua.foxminded.carrest.repository.CarTypeRepository;
-import ua.foxminded.carrest.repository.ProducerRepository;
+import ua.foxminded.carrest.service.CarService;
+import ua.foxminded.carrest.service.CarTypeService;
+import ua.foxminded.carrest.service.ProducerService;
 
 @RestController
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class TestController {
     
-    private final CarRepository carRepository;
+    private final CarService carService;
 
-    private final ProducerRepository producerRepository;
+    private final ProducerService producerService;
 
-    private final CarTypeRepository carTypeRepository;
+    private final CarTypeService carTypeService;
 
-
-    @GetMapping("/api/v1/cars")
-    public List<Car> getAllCar() {
-        return carRepository.findAll();
-    }
-
-    @GetMapping("/api/v1/cartypes")
-    public List<CarType> getAllCarTypes() {
-        return carTypeRepository.findAll();
-    }
-
-    @GetMapping("/api/v1/producers")
-    public List<Producer> getAllProducers() {
-        return producerRepository.findAll();
-    }
     
     @PostMapping
     public ResponseEntity<CarResponse> saveCar(final @RequestBody List<CreateCarRequest> body) {
@@ -56,18 +40,22 @@ public class TestController {
             Producer producer = new Producer();
             producer.setModelName(createCarRequest.getModelName());
             producer.setProducerName(createCarRequest.getProducerName());
-            producer = producerRepository.save(producer);
+            producer = producerService.save(producer);
 
             Car car = new Car();
-            car.setCarType(createCarRequest.getCarBodyType().stream().map(e -> {
-                CarType carType = new CarType();
-                carType.setCarBodyType(e);
-                return carTypeRepository.save(carType);
-            }).collect(Collectors.toSet()));
+            car.setCarType(createCarRequest.getCarBodyType().stream()
+                .flatMap(e -> {
+                    CarType carType = new CarType();
+                    carType.setCarBodyType(e);
+                    carTypeService.save(carType);
+                    return Stream.of(carType);
+                })
+                .collect(Collectors.toSet()));
+
             car.setProducer(producer);
             car.setYear(createCarRequest.getYear());
 
-            Car savedCar = carRepository.save(car);
+            Car savedCar = carService.save(car);
             result.add(savedCar);
         }
         CarResponse response = new CarResponse(result);

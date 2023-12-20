@@ -18,6 +18,10 @@ public class CarService{
         return carRepository.findAll();
     }
 
+    public Car findById(Long carId){
+        return carRepository.findById(carId).get();
+    }
+
     public void deleteById(Long id){
         carRepository.deleteById(id);
     }
@@ -29,6 +33,16 @@ public class CarService{
             .year(oldCar.getYear())
             .producer(oldCar.getProducer())
             .build();
+    }
+
+    public Car updateCarById(Long carId, Car updatedCar){
+        Car currentCar = carRepository.findById(carId).get();
+
+        currentCar.setCarType(updatedCar.getCarType());
+        currentCar.setYear(updatedCar.getYear());
+        currentCar.setProducer(updatedCar.getProducer());
+
+        return carRepository.save(currentCar);
     }
 
     public Car save(Car newCar){

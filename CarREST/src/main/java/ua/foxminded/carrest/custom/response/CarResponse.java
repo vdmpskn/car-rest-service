@@ -1,4 +1,4 @@
-package ua.foxminded.carrest;
+package ua.foxminded.carrest.custom.response;
 
 import java.util.List;
 
