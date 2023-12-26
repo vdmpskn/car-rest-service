@@ -1,4 +1,4 @@
-package ua.foxminded.carrest.dao.entity;
+package ua.foxminded.carrest.dao.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import ua.foxminded.carrest.dao.model.CarBodyType;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarTypeEntity {
+public class CarTypeDTO {
 
     private Long id;
 

@@ -1,4 +1,4 @@
-package ua.foxminded.carrest.dao.entity;
+package ua.foxminded.carrest.dao.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProducerEntity {
+public class ProducerDTO {
     private Long id;
 
     private String producerName;

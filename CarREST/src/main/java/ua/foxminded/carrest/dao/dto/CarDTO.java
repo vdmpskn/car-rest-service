@@ -1,4 +1,4 @@
-package ua.foxminded.carrest.dao.entity;
+package ua.foxminded.carrest.dao.dto;
 
 import java.util.Set;
 
@@ -12,14 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarEntity {
-
-    private Long id;
+public class CarDTO {
 
     private int year;
 
-    private ProducerEntity producerEntity;
+    private ProducerDTO producerDTO;
 
-    private Set<CarTypeEntity> carTypeEntities;
+    private Set<CarTypeDTO> carTypeEntities;
 
 }
