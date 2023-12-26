@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -68,10 +69,11 @@ public class CarController {
         return carService.save(car);
     }
 
-    @PostMapping("/update/year/{currentCarYear}_{newCarYear}")
-    public Car updateCarYear(@PathVariable int currentCarYear,
+    @PostMapping("/update/car/{carId}/year/{newCarYear}")
+    public Car updateCarYear(@PathVariable Long carId,
                              @PathVariable int newCarYear){
-       return carService.updateCarYear(currentCarYear, newCarYear).get();
+
+       return carService.updateCarYear(carId, newCarYear);
     }
 
     @PutMapping("/{carId}")
@@ -79,13 +81,16 @@ public class CarController {
         return carService.updateCarById(carId, updatedCar);
     }
 
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
     @DeleteMapping("/producer/{producerName}/models/{modelName}/years/{year}")
-    public ResponseEntity<Void> deleteCar(@PathVariable String producerName,
+    public void deleteCar(@PathVariable String producerName,
                                           @PathVariable String modelName,
                                           @PathVariable int year){
 
         carService.deleteCarByInfo(producerName, modelName, year);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
+    //TODO What is I would like to sort by 2 parameters
+    // Usually it is useful to provide an option to specify a sorting order ascending or descending
 }

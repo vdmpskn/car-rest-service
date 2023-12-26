@@ -46,12 +46,13 @@ public class CarService{
         return carRepository.findByYearBetween(minYear,maxYear, pageable);
     }
 
-    public Optional<Car> updateCarYear(int currentCarYear, int newCarYear){
-        Optional<Car> modifiedCar = carRepository.findCarByYear(currentCarYear);
-        modifiedCar.get().setYear(newCarYear);
+    public Car updateCarYear(Long carId, int newCarYear){
 
-        return modifiedCar;
+       Optional<Car> modifiedCar = carRepository.findById(carId);
 
+       modifiedCar.get().setYear(newCarYear);
+
+       return modifiedCar.get();
     }
 
     public Car findById(Long carId){
