@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.dao.dto.CarDTO;
 import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
-import ua.foxminded.carrest.dao.model.Car;
 import ua.foxminded.carrest.service.CarService;
 
 @RestController
@@ -76,7 +75,7 @@ public class CarController {
     }
 
     @PutMapping("/{carId}")
-    public CarDTO updateCar(@PathVariable Long carId, @RequestBody Car updatedCar){
+    public CarDTO updateCar(@PathVariable Long carId, @RequestBody CarDTO updatedCar){
         return carService.updateCarById(carId, updatedCar);
     }
 
