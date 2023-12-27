@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,23 +33,23 @@ public class CarController {
     private final CarService carService;
 
     @GetMapping
-    public List<Car> getAllCars(@RequestParam(defaultValue = "0") int page,
+    public List<CarDTO> getAllCars(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
                                 @RequestParam(defaultValue = "id") String sortBy){
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
-        Page<Car> producerPage = carService.findCarsPaged(pageable);
+        Page<CarDTO> producerPage = carService.findCarsPaged(pageable);
 
         return producerPage.getContent();
     }
 
     @GetMapping("/{carId}")
-    public Car getCarById(@PathVariable Long carId){
+    public CarDTO getCarById(@PathVariable Long carId){
         return carService.findById(carId);
     }
 
     @PostMapping("/producer/{producerName}/models/{modelName}/years/{year}")
-    public Car createCar(@PathVariable String producerName,
+    public CarDTO createCar(@PathVariable String producerName,
                          @PathVariable String modelName,
                          @RequestBody Set<CarTypeDTO> carTypeDTOSet,
                          @PathVariable int year){
@@ -70,14 +69,14 @@ public class CarController {
     }
 
     @PostMapping("/update/car/{carId}/year/{newCarYear}")
-    public Car updateCarYear(@PathVariable Long carId,
+    public CarDTO updateCarYear(@PathVariable Long carId,
                              @PathVariable int newCarYear){
 
        return carService.updateCarYear(carId, newCarYear);
     }
 
     @PutMapping("/{carId}")
-    public Car updateCar(@PathVariable Long carId, @RequestBody Car updatedCar){
+    public CarDTO updateCar(@PathVariable Long carId, @RequestBody Car updatedCar){
         return carService.updateCarById(carId, updatedCar);
     }
 

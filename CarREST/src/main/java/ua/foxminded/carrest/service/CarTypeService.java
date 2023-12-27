@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import ua.foxminded.carrest.converter.CarTypeConverter;
+import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.model.CarType;
 import ua.foxminded.carrest.repository.CarTypeRepository;
 
@@ -14,27 +16,32 @@ import ua.foxminded.carrest.repository.CarTypeRepository;
 public class CarTypeService {
     private final CarTypeRepository carTypeRepository;
 
-    public List<CarType> carTypeList(){
-        return carTypeRepository.findAll();
+    private final CarTypeConverter carTypeConverter;
+
+    public List<CarTypeDTO> carTypeList(){
+        return carTypeRepository.findAll()
+            .stream()
+            .map(carTypeConverter::convertToDTO)
+            .toList();
     }
 
-    public void save(CarType carType){
-        carTypeRepository.save(carType);
+    public CarTypeDTO save(CarTypeDTO carType){
+        return carTypeConverter.convertToDTO(carTypeRepository.save(carTypeConverter.convertToModel(carType)));
     }
 
-    public Optional<CarType> getCarTypeById(Long id){
-        return carTypeRepository.findById(id);
+    public Optional<CarTypeDTO> getCarTypeById(Long id){
+        return carTypeRepository.findById(id).map(carTypeConverter::convertToDTO);
     }
 
-    public CarType updateById(Long id,CarType updatedCarType) {
-        Optional<CarType> currentCarType = carTypeRepository.findById(id);
+    public CarTypeDTO updateById(Long id,CarType updatedCarType) {
+        Optional<CarTypeDTO> currentCarType = carTypeRepository.findById(id).map(carTypeConverter::convertToDTO);
         currentCarType.get().setCarBodyType(updatedCarType.getCarBodyType());
 
-        return carTypeRepository.save(currentCarType.get());
+        return carTypeConverter.convertToDTO(carTypeRepository.save(carTypeConverter.convertToModel(currentCarType.get())));
     }
 
-    public void delete(CarType carType){
-        carTypeRepository.delete(carType);
+    public void delete(CarTypeDTO carType){
+        carTypeRepository.delete(carTypeConverter.convertToModel(carType));
     }
 
     public void deleteById(Long id){
