@@ -13,7 +13,7 @@ import ua.foxminded.carrest.dao.model.Car;
 
 
 @Repository
-public interface CarRepository extends JpaRepository<Car, Long> {
+public interface CarRepository extends JpaRepository<Car, Long>{
     Page<Car> findByProducer_ProducerName(String producerName, Pageable pageable);
 
     Page<Car> findByProducer_ModelName(String modelName, Pageable pageable);

@@ -3,6 +3,8 @@ package ua.foxminded.carrest.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -18,11 +20,8 @@ public class CarTypeService {
 
     private final CarTypeConverter carTypeConverter;
 
-    public List<CarTypeDTO> carTypeList(){
-        return carTypeRepository.findAll()
-            .stream()
-            .map(carTypeConverter::convertToDTO)
-            .toList();
+    public Page<CarTypeDTO> carTypeList(Pageable pageable){
+        return carTypeRepository.findAll(pageable).map(carTypeConverter::convertToDTO);
     }
 
     public CarTypeDTO save(CarTypeDTO carType){

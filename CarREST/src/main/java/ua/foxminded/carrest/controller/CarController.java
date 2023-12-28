@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.dao.dto.CarDTO;
 import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
+import ua.foxminded.carrest.dao.model.Car;
 import ua.foxminded.carrest.service.CarService;
 
 @RestController
@@ -32,12 +33,15 @@ public class CarController {
     private final CarService carService;
 
     @GetMapping
-    public List<CarDTO> getAllCars(@RequestParam(defaultValue = "0") int page,
+    public List<Car> getAllCars(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
-                                @RequestParam(defaultValue = "id") String sortBy){
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+                                @RequestParam(defaultValue = "id") String sortBy,
+                                @RequestParam(defaultValue = "asc") String sortOrder){
 
-        Page<CarDTO> producerPage = carService.findCarsPaged(pageable);
+        Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<Car> producerPage = carService.findCarsPaged(pageable);
 
         return producerPage.getContent();
     }
@@ -59,8 +63,8 @@ public class CarController {
             .build();
 
         CarDTO car = CarDTO.builder()
-            .carTypeEntities(carTypeDTOSet)
-            .producerDTO(producerDTO)
+            .carType(carTypeDTOSet)
+            .producer(producerDTO)
             .year(year)
             .build();
 
@@ -87,8 +91,4 @@ public class CarController {
 
         carService.deleteCarByInfo(producerName, modelName, year);
     }
-
-
-    //TODO What is I would like to sort by 2 parameters
-    // Usually it is useful to provide an option to specify a sorting order ascending or descending
 }

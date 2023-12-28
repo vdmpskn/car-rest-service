@@ -32,9 +32,12 @@ public class ProducerController {
 
     @GetMapping
     public List<ProducerDTO> getAllProducers(@RequestParam(defaultValue = "0") int page,
-                                          @RequestParam(defaultValue = "10") int size,
-                                          @RequestParam(defaultValue = "id") String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+                                             @RequestParam(defaultValue = "10") int size,
+                                             @RequestParam(defaultValue = "id") String sortBy,
+                                             @RequestParam(defaultValue = "asc") String sortOrder) {
+        Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction,sortBy));
 
         Page<ProducerDTO> producerPage = producerService.findAllPaged(pageable);
 
@@ -45,8 +48,11 @@ public class ProducerController {
     public List<String> listOfModels(@PathVariable String producerName,
                                      @RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam(defaultValue = "id") String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+                                     @RequestParam(defaultValue = "id") String sortBy,
+                                     @RequestParam(defaultValue = "asc") String sortOrder) {
+        Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
         Page<String> modelNames = producerService.getAllModelsPaged(producerName, pageable);
 
@@ -80,8 +86,8 @@ public class ProducerController {
 
     @PutMapping("/{producerName}/models/{oldModelName}_{newModelName}")
     public ProducerDTO updateModel(@PathVariable String producerName,
-                                @PathVariable String oldModelName,
-                                @PathVariable String newModelName) {
+                                   @PathVariable String oldModelName,
+                                   @PathVariable String newModelName) {
 
         return producerService.updateModel(producerName, oldModelName, newModelName);
     }

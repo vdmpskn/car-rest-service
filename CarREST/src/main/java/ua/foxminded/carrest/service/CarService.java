@@ -32,8 +32,8 @@ public class CarService{
 
     }
 
-    public Page<CarDTO> findCarsPaged(Pageable pageable){
-         return carRepository.findAll(pageable).map(converter::convertToDTO);
+    public Page<Car> findCarsPaged(Pageable pageable){
+         return carRepository.findAll(pageable);
     }
 
     public Page<CarDTO> findCarsByProducerName(String producerName, Pageable pageable){
@@ -71,9 +71,9 @@ public class CarService{
     public CarDTO updateCarById(Long carId, CarDTO updatedCar){
         Optional<CarDTO> currentCar = carRepository.findById(carId).map(converter::convertToDTO);
 
-        currentCar.get().setCarTypeEntities(updatedCar.getCarTypeEntities());
+        currentCar.get().setCarType(updatedCar.getCarType());
         currentCar.get().setYear(updatedCar.getYear());
-        currentCar.get().setProducerDTO(updatedCar.getProducerDTO());
+        currentCar.get().setProducer(updatedCar.getProducer());
 
         return converter.convertToDTO(carRepository.save(converter.convertToModel(currentCar.get())));
     }
