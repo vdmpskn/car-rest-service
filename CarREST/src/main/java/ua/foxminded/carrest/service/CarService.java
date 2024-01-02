@@ -2,7 +2,6 @@ package ua.foxminded.carrest.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import jakarta.transaction.Transactional;
 
@@ -13,9 +12,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.converter.CarConverter;
 import ua.foxminded.carrest.dao.dto.CarDTO;
-import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.model.Car;
-import ua.foxminded.carrest.dao.model.CarBodyType;
 import ua.foxminded.carrest.repository.CarRepository;
 
 @Service
@@ -26,60 +23,59 @@ public class CarService{
 
     private final CarConverter converter;
 
-    public List<Car> findAll(){
-        return carRepository.findAll();
+    public List<CarDTO> findAll(){
+
+       return carRepository.findAll()
+           .stream()
+           .map(converter::convertToDTO)
+           .toList();
+
     }
 
     public Page<Car> findCarsPaged(Pageable pageable){
-        return carRepository.findAll(pageable);
+         return carRepository.findAll(pageable);
     }
 
-    public Page<Car> findCarsByProducerName(String producerName, Pageable pageable){
-        return carRepository.findByProducer_ProducerName(producerName, pageable);
+    public Page<CarDTO> findCarsByProducerName(String producerName, Pageable pageable){
+        return carRepository.findByProducer_ProducerName(producerName, pageable)
+            .map(converter::convertToDTO);
     }
 
-    public Page<Car> findCarsByModelName(String modelName, Pageable pageable){
-        return carRepository.findByProducer_ModelName(modelName, pageable);
+    public Page<CarDTO> findCarsByModelName(String modelName, Pageable pageable){
+        return carRepository.findByProducer_ModelName(modelName, pageable)
+            .map(converter::convertToDTO);
     }
 
-    public Page<Car> findCarsByYearRange(Integer minYear, Integer maxYear, Pageable pageable){
-        return carRepository.findByYearBetween(minYear,maxYear, pageable);
+    public Page<CarDTO> findCarsByYearRange(Integer minYear, Integer maxYear, Pageable pageable){
+        return carRepository.findByYearBetween(minYear,maxYear, pageable)
+            .map(converter::convertToDTO);
     }
 
-    public Car updateCarYear(Long carId, int newCarYear){
+    public CarDTO updateCarYear(Long carId, int newCarYear){
 
-       Optional<Car> modifiedCar = carRepository.findById(carId);
+       Optional<CarDTO> modifiedCar = carRepository.findById(carId).map(converter::convertToDTO);
 
        modifiedCar.get().setYear(newCarYear);
 
        return modifiedCar.get();
     }
 
-    public Car findById(Long carId){
-        return carRepository.findById(carId).get();
+    public CarDTO findById(Long carId){
+        return converter.convertToDTO(carRepository.findById(carId).get());
     }
 
     public void deleteById(Long id){
         carRepository.deleteById(id);
     }
 
-    public Car updateCar(Car oldCar){
-        return Car.builder()
-            .id(oldCar.getId())
-            .carType(oldCar.getCarType())
-            .year(oldCar.getYear())
-            .producer(oldCar.getProducer())
-            .build();
-    }
+    public CarDTO updateCarById(Long carId, CarDTO updatedCar){
+        Optional<CarDTO> currentCar = carRepository.findById(carId).map(converter::convertToDTO);
 
-    public Car updateCarById(Long carId, Car updatedCar){
-        Car currentCar = carRepository.findById(carId).get();
+        currentCar.get().setCarType(updatedCar.getCarType());
+        currentCar.get().setYear(updatedCar.getYear());
+        currentCar.get().setProducer(updatedCar.getProducer());
 
-        currentCar.setCarType(updatedCar.getCarType());
-        currentCar.setYear(updatedCar.getYear());
-        currentCar.setProducer(updatedCar.getProducer());
-
-        return carRepository.save(currentCar);
+        return converter.convertToDTO(carRepository.save(converter.convertToModel(currentCar.get())));
     }
 
     @Transactional
@@ -91,7 +87,7 @@ public class CarService{
         carRepository.deleteAll(carsToDelete);
     }
 
-    public Car save(CarDTO newCar){
-         return carRepository.save(converter.convertToModel(newCar));
+    public CarDTO save(CarDTO newCar){
+         return converter.convertToDTO(carRepository.save(converter.convertToModel(newCar)));
     }
 }

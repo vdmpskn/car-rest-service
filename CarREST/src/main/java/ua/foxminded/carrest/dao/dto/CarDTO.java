@@ -16,8 +16,8 @@ public class CarDTO {
 
     private int year;
 
-    private ProducerDTO producerDTO;
+    private ProducerDTO producer;
 
-    private Set<CarTypeDTO> carTypeEntities;
+    private Set<CarTypeDTO> carType;
 
 }
