@@ -1,6 +1,5 @@
 package ua.foxminded.carrest.controller;
 
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -20,10 +19,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ua.foxminded.carrest.custom.response.CarSearchResponse;
 import ua.foxminded.carrest.dao.dto.CarDTO;
 import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
-import ua.foxminded.carrest.dao.model.Car;
 import ua.foxminded.carrest.service.CarService;
 
 @RestController
@@ -33,17 +32,23 @@ public class CarController {
     private final CarService carService;
 
     @GetMapping
-    public List<Car> getAllCars(@RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "10") int size,
-                                @RequestParam(defaultValue = "id") String sortBy,
-                                @RequestParam(defaultValue = "asc") String sortOrder){
+    public CarSearchResponse getAllCars(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(defaultValue = "id") String sortBy,
+                                        @RequestParam(defaultValue = "asc") String sortOrder){
 
         Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        Page<Car> producerPage = carService.findCarsPaged(pageable);
+        Page<CarDTO> carListPage = carService.findCarsPaged(pageable);
 
-        return producerPage.getContent();
+        return CarSearchResponse.builder()
+            .carDTOList(carListPage.getContent())
+            .currentPage(carListPage.getNumber())
+            .pageSize(carListPage.getSize())
+            .totalElements(carListPage.getTotalElements())
+            .totalPages(carListPage.getTotalPages())
+            .build();
     }
 
     @GetMapping("/{carId}")

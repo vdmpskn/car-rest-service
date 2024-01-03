@@ -3,6 +3,7 @@ package ua.foxminded.carrest.service;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
@@ -23,17 +24,9 @@ public class CarService{
 
     private final CarConverter converter;
 
-    public List<CarDTO> findAll(){
 
-       return carRepository.findAll()
-           .stream()
-           .map(converter::convertToDTO)
-           .toList();
-
-    }
-
-    public Page<Car> findCarsPaged(Pageable pageable){
-         return carRepository.findAll(pageable);
+    public Page<CarDTO> findCarsPaged(Pageable pageable){
+         return carRepository.findAll(pageable).map(converter::convertToDTO);
     }
 
     public Page<CarDTO> findCarsByProducerName(String producerName, Pageable pageable){
@@ -60,13 +53,13 @@ public class CarService{
        return modifiedCar.get();
     }
 
-    public CarDTO findById(Long carId){
-        return converter.convertToDTO(carRepository.findById(carId).get());
+    public CarDTO findById(Long carId) {
+        Car car = carRepository.findById(carId)
+            .orElseThrow(() -> new EntityNotFoundException("Car with id " + carId + " not found"));
+
+        return converter.convertToDTO(car);
     }
 
-    public void deleteById(Long id){
-        carRepository.deleteById(id);
-    }
 
     public CarDTO updateCarById(Long carId, CarDTO updatedCar){
         Optional<CarDTO> currentCar = carRepository.findById(carId).map(converter::convertToDTO);

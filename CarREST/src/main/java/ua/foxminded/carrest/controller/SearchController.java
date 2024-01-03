@@ -1,7 +1,5 @@
 package ua.foxminded.carrest.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ua.foxminded.carrest.custom.response.CarSearchResponse;
 import ua.foxminded.carrest.dao.dto.CarDTO;
 import ua.foxminded.carrest.service.CarService;
 
@@ -24,21 +23,26 @@ public class SearchController {
     private final CarService carService;
 
     @GetMapping("/producer/{producerName}")
-    public List<CarDTO> searchByProducerName(@RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "10") int size,
-                                             @RequestParam(defaultValue = "id") String sortBy,
-                                             @RequestParam(defaultValue = "asc") String sortOrder,
-                                             @PathVariable final String producerName) {
+    public CarSearchResponse searchByProducerName(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size,
+                                                  @RequestParam(defaultValue = "id") String sortBy,
+                                                  @RequestParam(defaultValue = "asc") String sortOrder,
+                                                  @PathVariable final String producerName) {
         Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction,sortBy));
         Page<CarDTO> result = carService.findCarsByProducerName(producerName, pageable);
 
-        return result.getContent();
+        return CarSearchResponse.builder()
+            .carDTOList(result.getContent())
+            .currentPage(result.getNumber())
+            .pageSize(result.getSize())
+            .totalElements(result.getTotalElements())
+            .totalPages(result.getTotalPages()).build();
     }
 
     @GetMapping("/model/{modelName}")
-    public List<CarDTO> searchByModelName(@PathVariable String modelName,
+    public CarSearchResponse searchByModelName(@PathVariable String modelName,
                                           @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size,
                                           @RequestParam(defaultValue = "id") String sortBy,
@@ -49,11 +53,16 @@ public class SearchController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction,sortBy));
         Page<CarDTO> result = carService.findCarsByModelName(modelName, pageable);
 
-        return result.getContent();
+        return CarSearchResponse.builder()
+            .carDTOList(result.getContent())
+            .currentPage(result.getNumber())
+            .pageSize(result.getSize())
+            .totalElements(result.getTotalElements())
+            .totalPages(result.getTotalPages()).build();
     }
 
     @GetMapping("/year/{minYear}_{maxYear}")
-    public List<CarDTO> searchByYearRange(@PathVariable Integer minYear,
+    public CarSearchResponse searchByYearRange(@PathVariable Integer minYear,
                                           @PathVariable Integer maxYear,
                                           @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size,
@@ -63,7 +72,12 @@ public class SearchController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction,sortBy));
         Page<CarDTO> result = carService.findCarsByYearRange(minYear, maxYear, pageable);
 
-        return result.getContent();
+        return CarSearchResponse.builder()
+            .carDTOList(result.getContent())
+            .currentPage(result.getNumber())
+            .pageSize(result.getSize())
+            .totalElements(result.getTotalElements())
+            .totalPages(result.getTotalPages()).build();
     }
 
 }

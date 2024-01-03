@@ -1,8 +1,5 @@
 package ua.foxminded.carrest.controller;
 
-
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ua.foxminded.carrest.custom.response.ModelSearchResponse;
+import ua.foxminded.carrest.custom.response.ProducerSearchResponse;
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
 import ua.foxminded.carrest.dao.model.Producer;
 import ua.foxminded.carrest.service.ProducerService;
@@ -31,32 +30,43 @@ public class ProducerController {
     private final ProducerService producerService;
 
     @GetMapping
-    public List<ProducerDTO> getAllProducers(@RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "10") int size,
-                                             @RequestParam(defaultValue = "id") String sortBy,
-                                             @RequestParam(defaultValue = "asc") String sortOrder) {
+    public ProducerSearchResponse getAllProducers(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size,
+                                                  @RequestParam(defaultValue = "id") String sortBy,
+                                                  @RequestParam(defaultValue = "asc") String sortOrder) {
         Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction,sortBy));
 
         Page<ProducerDTO> producerPage = producerService.findAllPaged(pageable);
 
-        return producerPage.getContent();
+        return ProducerSearchResponse.builder()
+            .producers(producerPage.getContent())
+            .currentPage(producerPage.getNumber())
+            .pageSize(producerPage.getSize())
+            .totalElements(producerPage.getTotalElements())
+            .totalPages(producerPage.getTotalPages())
+            .build();
     }
 
     @GetMapping("/{producerName}/models/")
-    public List<String> listOfModels(@PathVariable String producerName,
-                                     @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam(defaultValue = "id") String sortBy,
-                                     @RequestParam(defaultValue = "asc") String sortOrder) {
+    public ModelSearchResponse listOfModels(@PathVariable String producerName,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size,
+                                            @RequestParam(defaultValue = "id") String sortBy,
+                                            @RequestParam(defaultValue = "asc") String sortOrder) {
         Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
         Page<String> modelNames = producerService.getAllModelsPaged(producerName, pageable);
 
-        return modelNames.getContent();
+        return ModelSearchResponse.builder()
+            .models(modelNames.getContent())
+            .currentPage(modelNames.getNumber())
+            .pageSize(modelNames.getSize())
+            .totalElements(modelNames.getTotalElements())
+            .totalPages(modelNames.getTotalPages()).build();
     }
 
     @GetMapping("/{producerId}")
