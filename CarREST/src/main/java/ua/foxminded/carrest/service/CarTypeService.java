@@ -1,6 +1,5 @@
 package ua.foxminded.carrest.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -45,8 +44,6 @@ public class CarTypeService {
 
             return carTypeConverter.convertToDTO(carTypeRepository.save(carTypeConverter.convertToModel(currentCarType)));
         } else {
-            // Handle the case where the CarType with the given ID is not found
-            // You can throw an exception, return a default value, or handle it in another way
             throw new EntityNotFoundException("CarType with id " + id + " not found");
         }
     }

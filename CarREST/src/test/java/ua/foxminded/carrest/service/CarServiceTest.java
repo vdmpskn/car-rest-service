@@ -1,23 +1,29 @@
 package ua.foxminded.carrest.service;
 
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import ua.foxminded.carrest.converter.CarConverter;
 import ua.foxminded.carrest.dao.dto.CarDTO;
@@ -26,7 +32,6 @@ import ua.foxminded.carrest.dao.model.Car;
 import ua.foxminded.carrest.dao.model.CarBodyType;
 import ua.foxminded.carrest.repository.CarRepository;
 
-@SpringBootTest
 class CarServiceTest {
 
     @Mock
@@ -37,6 +42,11 @@ class CarServiceTest {
 
     @InjectMocks
     private CarService carService;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void shouldFindCarsPaged() {
@@ -179,5 +189,59 @@ class CarServiceTest {
 
         assertEquals(newCarDTO.getCarType(), result.getCarType());
         assertEquals(newCarDTO.getYear(), result.getYear());
+    }
+
+    private Pageable createPageable() {
+        return PageRequest.of(0, 10);
+    }
+
+    @Test
+    void shouldNotFindCarsByInvalidProducerName() {
+        when(carRepository.findByProducer_ProducerName("invalidName", createPageable())).thenReturn(null);
+
+        assertThrows(NullPointerException.class, () -> carService.findCarsByProducerName("invalidName", createPageable()));
+    }
+
+    @Test
+    void shouldNotFindCarsByInvalidModelName() {
+        when(carRepository.findByProducer_ModelName("invalidModel", createPageable())).thenReturn(null);
+
+        assertThrows(NullPointerException.class, () -> carService.findCarsByModelName("invalidModel", createPageable()));
+    }
+
+    @Test
+    void shouldNotFindCarsByInvalidYearRange() {
+        when(carRepository.findByYearBetween(2022, 2021, createPageable())).thenReturn(null);
+
+        assertThrows(NullPointerException.class, () -> carService.findCarsByYearRange(2022, 2021, createPageable()));
+    }
+
+    @Test
+    void shouldNotUpdateCarYear_InvalidCarId() {
+        when(carRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> carService.updateCarYear(999L, 2022));
+    }
+
+    @Test
+    void shouldNotFindCarById_InvalidCarId() {
+        when(carRepository.findById(999L)).thenReturn(null);
+
+        assertThrows(NullPointerException.class, () -> carService.findById(999L));
+    }
+
+    @Test
+    void shouldNotUpdateCarById_InvalidCarId() {
+        when(carRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> carService.updateCarById(999L, new CarDTO()));
+    }
+
+    @Test
+    void shouldNotDeleteCarByInfo_NoCarsFound() {
+        when(carRepository.findCarByProducer_ProducerNameAndProducer_ModelNameAndYear("invalidName", "invalidModel", 2022))
+            .thenReturn(Collections.emptyList());
+
+        assertDoesNotThrow(() -> carService.deleteCarByInfo("invalidName", "invalidModel", 2022));
     }
 }

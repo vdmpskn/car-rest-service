@@ -1,31 +1,35 @@
 package ua.foxminded.carrest.service;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import jakarta.persistence.EntityNotFoundException;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import ua.foxminded.carrest.converter.ProducerConverter;
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
 import ua.foxminded.carrest.dao.model.Producer;
 import ua.foxminded.carrest.repository.ProducerRepository;
 
-@SpringBootTest
+
 class ProducerServiceTest {
+    @InjectMocks
+    private ProducerService producerService;
 
     @Mock
     private ProducerRepository producerRepository;
@@ -33,8 +37,10 @@ class ProducerServiceTest {
     @Mock
     private ProducerConverter producerConverter;
 
-    @InjectMocks
-    private ProducerService producerService;
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void shouldFindAllPaged() {
@@ -110,4 +116,35 @@ class ProducerServiceTest {
         assertEquals(newModelName, result.getModelName());
     }
 
+    @Test
+    void shouldNotUpdateById_InvalidId() {
+        when(producerRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> producerService.updateById(999L, new Producer()));
+    }
+
+
+    @Test
+    void shouldNotUpdateModel_NullOldModelName() {
+        assertThrows(RuntimeException.class, () -> producerService.updateModel("producerName", null, "newModelName"));
+    }
+
+    @Test
+    void shouldNotUpdateModel_NullNewModelName() {
+        assertThrows(RuntimeException.class, () -> producerService.updateModel("producerName", "oldModelName", null));
+    }
+
+    @Test
+    void shouldNotUpdateModel_NoProducerFound() {
+        when(producerRepository.findByProducerName("nonexistentProducer")).thenReturn(Collections.emptyList());
+
+        assertThrows(RuntimeException.class, () -> producerService.updateModel("nonexistentProducer", "oldModelName", "newModelName"));
+    }
+
+    @Test
+    void shouldNotUpdateModel_NoModelFound() {
+        when(producerRepository.findByProducerName("producerName")).thenReturn(Collections.singletonList(new Producer()));
+
+        assertThrows(RuntimeException.class, () -> producerService.updateModel("producerName", "nonexistentModel", "newModelName"));
+    }
 }

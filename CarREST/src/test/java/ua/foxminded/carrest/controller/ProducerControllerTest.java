@@ -1,5 +1,9 @@
 package ua.foxminded.carrest.controller;
 
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
@@ -12,10 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.when;
 
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
 import ua.foxminded.carrest.dao.model.Producer;
@@ -104,5 +104,30 @@ class ProducerControllerTest {
     void shouldDeleteProducer() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/producers/1"))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+    @Test
+    void shouldNotGetProducerById_InvalidId() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/producers/invalidId"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void shouldNotCreateProducer_MissingRequestBody() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/producers"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void shouldNotUpdateProducer_InvalidId() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/producers/invalidId")
+                .content("{}").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+
+    @Test
+    void shouldNotDeleteProducer_InvalidId() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/producers/invalidId"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 }

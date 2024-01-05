@@ -2,8 +2,6 @@ package ua.foxminded.carrest.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -99,6 +97,4 @@ public class ProducerService {
 
         return producerConverter.convertToDTO(producer);
     }
-
-
 }

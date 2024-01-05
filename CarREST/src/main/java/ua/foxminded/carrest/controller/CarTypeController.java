@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.custom.response.CarTypeSearchResponse;
@@ -40,6 +41,10 @@ public class CarTypeController {
 
         Page<CarTypeDTO> carTypeDTOPage = carTypeService.carTypeList(pageable);
 
+        if (carTypeDTOPage.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No car types found");
+        }
+
         return CarTypeSearchResponse.builder()
             .carDTOList(carTypeDTOPage.getContent())
             .currentPage(carTypeDTOPage.getNumber())
@@ -51,13 +56,21 @@ public class CarTypeController {
 
     @GetMapping("/{carTypeId}")
     public CarTypeDTO getCarTypeById(@PathVariable Long carTypeId){
-        return carTypeService.getCarTypeById(carTypeId);
+        CarTypeDTO carTypeDTO = carTypeService.getCarTypeById(carTypeId);
+        if (carTypeDTO == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car type not found");
+        }
+        return carTypeDTO;
     }
 
     @PutMapping("/{carTypeId}")
     public CarTypeDTO updateCarById(@PathVariable Long carTypeId,
                                                  @RequestBody CarType updatedCarType){
-        return carTypeService.updateById(carTypeId, updatedCarType);
+         CarTypeDTO carTypeDTO = carTypeService.updateById(carTypeId, updatedCarType);
+        if (carTypeDTO == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car type not found");
+        }
+        return carTypeDTO;
     }
 
     @ResponseStatus(code = HttpStatus.NO_CONTENT)

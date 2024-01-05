@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.custom.response.CarSearchResponse;
@@ -42,6 +43,10 @@ public class CarController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<CarDTO> carListPage = carService.findCarsPaged(pageable);
 
+        if (carListPage.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No cars found");
+        }
+
         return CarSearchResponse.builder()
             .carDTOList(carListPage.getContent())
             .currentPage(carListPage.getNumber())
@@ -52,8 +57,12 @@ public class CarController {
     }
 
     @GetMapping("/{carId}")
-    public CarDTO getCarById(@PathVariable Long carId){
-        return carService.findById(carId);
+    public CarDTO getCarById(@PathVariable Long carId) {
+        CarDTO carDTO = carService.findById(carId);
+        if (carDTO == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car not found");
+        }
+        return carDTO;
     }
 
     @PostMapping("/producer/{producerName}/models/{modelName}/years/{year}")
@@ -80,7 +89,11 @@ public class CarController {
     public CarDTO updateCarYear(@PathVariable Long carId,
                              @PathVariable int newCarYear){
 
-       return carService.updateCarYear(carId, newCarYear);
+        CarDTO updatedCar = carService.updateCarYear(carId, newCarYear);
+        if (updatedCar == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car not found for year update");
+        }
+        return updatedCar;
     }
 
     @PutMapping("/{carId}")
