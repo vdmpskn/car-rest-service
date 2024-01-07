@@ -2,8 +2,6 @@ package ua.foxminded.carrest.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,13 +23,6 @@ public class ProducerService {
     private final ProducerRepository producerRepository;
 
     private final ProducerConverter producerConverter;
-
-    public List<ProducerDTO> findAll(){
-        return producerRepository.findAll().
-            stream()
-            .map(producerConverter::convertToDTO)
-            .toList();
-    }
 
     public Page<ProducerDTO> findAllPaged(Pageable pageable){
         return producerRepository.findAll(pageable).map(producerConverter::convertToDTO);
@@ -100,8 +91,10 @@ public class ProducerService {
         throw new RuntimeException("Producer not found for the given model name: " + oldModelName);
     }
 
-    public ProducerDTO findById(Long id){
-        return producerConverter.convertToDTO(producerRepository.findById(id).get());
-    }
+    public ProducerDTO findById(Long id) {
+        Producer producer = producerRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Producer with id " + id + " not found"));
 
+        return producerConverter.convertToDTO(producer);
+    }
 }

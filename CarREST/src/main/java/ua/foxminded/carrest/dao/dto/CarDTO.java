@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CarDTO {
 
+    private Long id;
+
     private int year;
 
     private ProducerDTO producer;

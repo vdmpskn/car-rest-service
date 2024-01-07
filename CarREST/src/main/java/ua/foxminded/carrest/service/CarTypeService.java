@@ -1,7 +1,8 @@
 package ua.foxminded.carrest.service;
 
-import java.util.List;
 import java.util.Optional;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,20 +29,25 @@ public class CarTypeService {
         return carTypeConverter.convertToDTO(carTypeRepository.save(carTypeConverter.convertToModel(carType)));
     }
 
-    public Optional<CarTypeDTO> getCarTypeById(Long id){
-        return carTypeRepository.findById(id).map(carTypeConverter::convertToDTO);
+    public CarTypeDTO getCarTypeById(Long id){
+        Optional<CarType> carType = carTypeRepository.findById(id);
+
+        return carTypeConverter.convertToDTO(carType.get());
     }
 
-    public CarTypeDTO updateById(Long id,CarType updatedCarType) {
-        Optional<CarTypeDTO> currentCarType = carTypeRepository.findById(id).map(carTypeConverter::convertToDTO);
-        currentCarType.get().setCarBodyType(updatedCarType.getCarBodyType());
+    public CarTypeDTO updateById(Long id, CarType updatedCarType) {
+        Optional<CarTypeDTO> currentCarTypeOptional = carTypeRepository.findById(id).map(carTypeConverter::convertToDTO);
 
-        return carTypeConverter.convertToDTO(carTypeRepository.save(carTypeConverter.convertToModel(currentCarType.get())));
+        if (currentCarTypeOptional.isPresent()) {
+            CarTypeDTO currentCarType = currentCarTypeOptional.get();
+            currentCarType.setCarBodyType(updatedCarType.getCarBodyType());
+
+            return carTypeConverter.convertToDTO(carTypeRepository.save(carTypeConverter.convertToModel(currentCarType)));
+        } else {
+            throw new EntityNotFoundException("CarType with id " + id + " not found");
+        }
     }
 
-    public void delete(CarTypeDTO carType){
-        carTypeRepository.delete(carTypeConverter.convertToModel(carType));
-    }
 
     public void deleteById(Long id){
        carTypeRepository.delete(carTypeRepository.findById(id).get());

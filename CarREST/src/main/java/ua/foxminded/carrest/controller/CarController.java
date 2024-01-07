@@ -1,6 +1,5 @@
 package ua.foxminded.carrest.controller;
 
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -18,12 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
+import ua.foxminded.carrest.custom.response.CarSearchResponse;
 import ua.foxminded.carrest.dao.dto.CarDTO;
 import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
-import ua.foxminded.carrest.dao.model.Car;
 import ua.foxminded.carrest.service.CarService;
 
 @RestController
@@ -33,22 +33,36 @@ public class CarController {
     private final CarService carService;
 
     @GetMapping
-    public List<Car> getAllCars(@RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "10") int size,
-                                @RequestParam(defaultValue = "id") String sortBy,
-                                @RequestParam(defaultValue = "asc") String sortOrder){
+    public CarSearchResponse getAllCars(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(defaultValue = "id") String sortBy,
+                                        @RequestParam(defaultValue = "asc") String sortOrder){
 
         Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        Page<Car> producerPage = carService.findCarsPaged(pageable);
+        Page<CarDTO> carListPage = carService.findCarsPaged(pageable);
 
-        return producerPage.getContent();
+        if (carListPage.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No cars found");
+        }
+
+        return CarSearchResponse.builder()
+            .carDTOList(carListPage.getContent())
+            .currentPage(carListPage.getNumber())
+            .pageSize(carListPage.getSize())
+            .totalElements(carListPage.getTotalElements())
+            .totalPages(carListPage.getTotalPages())
+            .build();
     }
 
     @GetMapping("/{carId}")
-    public CarDTO getCarById(@PathVariable Long carId){
-        return carService.findById(carId);
+    public CarDTO getCarById(@PathVariable Long carId) {
+        CarDTO carDTO = carService.findById(carId);
+        if (carDTO == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car not found");
+        }
+        return carDTO;
     }
 
     @PostMapping("/producer/{producerName}/models/{modelName}/years/{year}")
@@ -75,7 +89,11 @@ public class CarController {
     public CarDTO updateCarYear(@PathVariable Long carId,
                              @PathVariable int newCarYear){
 
-       return carService.updateCarYear(carId, newCarYear);
+        CarDTO updatedCar = carService.updateCarYear(carId, newCarYear);
+        if (updatedCar == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car not found for year update");
+        }
+        return updatedCar;
     }
 
     @PutMapping("/{carId}")
