@@ -6,3 +6,16 @@ spring:
     password: 1111
   jpa:
     generate-ddl: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "https://dev-nwxbmgmx1lcshk46.us.auth0.com/"
+okta:
+  oauth2:
+    issuer: https://dev-nwxbmgmx1lcshk46.us.auth0.com/
+    audience: http://localhost:8080/
+
+server:
+  port: 8080
