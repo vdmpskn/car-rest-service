@@ -6,6 +6,8 @@ spring:
     password: 1111
   jpa:
     generate-ddl: true
+  flyway:
+    baseline-on-migrate: true
 
   security:
     oauth2:
