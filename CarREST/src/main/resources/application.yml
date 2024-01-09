@@ -16,6 +16,3 @@ okta:
   oauth2:
     issuer: https://dev-nwxbmgmx1lcshk46.us.auth0.com/
     audience: http://localhost:8080/
-
-server:
-  port: 8080
