@@ -7,10 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.custom.response.Auth0TokenResponse;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
+
+    private final RestTemplate restTemplate;
 
     public Auth0TokenResponse getToken(String username, String password){
         String url = "https://dev-nwxbmgmx1lcshk46.us.auth0.com/oauth/token";
@@ -26,7 +30,6 @@ public class AuthService {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Auth0TokenResponse> responseEntity = restTemplate.postForEntity(url, requestEntity, Auth0TokenResponse.class);
         return responseEntity.getBody();
     }

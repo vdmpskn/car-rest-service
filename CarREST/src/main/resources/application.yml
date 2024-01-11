@@ -14,6 +14,9 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: "https://dev-nwxbmgmx1lcshk46.us.auth0.com/"
+logging:
+  level:
+    org.springframework.security: debug
 okta:
   oauth2:
     issuer: https://dev-nwxbmgmx1lcshk46.us.auth0.com/

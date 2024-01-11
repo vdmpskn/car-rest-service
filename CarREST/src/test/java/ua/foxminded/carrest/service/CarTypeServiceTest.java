@@ -72,7 +72,7 @@ class CarTypeServiceTest {
     void shouldNotGetCarTypeById_InvalidId() {
         when(carTypeRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> carTypeService.getCarTypeById(999L));
+        assertThrows(EntityNotFoundException.class, () -> carTypeService.getCarTypeById(999L));
     }
 
     @Test
@@ -86,7 +86,7 @@ class CarTypeServiceTest {
     void shouldNotDeleteById_InvalidId() {
         when(carTypeRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> carTypeService.deleteById(999L));
+        assertThrows(EntityNotFoundException.class, () -> carTypeService.deleteById(999L));
     }
 
     @Test
@@ -100,6 +100,6 @@ class CarTypeServiceTest {
     void shouldNotDeleteById_EmptyOptional() {
         when(carTypeRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> carTypeService.deleteById(999L));
+        assertThrows(EntityNotFoundException.class, () -> carTypeService.deleteById(999L));
     }
 }

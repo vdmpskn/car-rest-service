@@ -1,6 +1,6 @@
 package ua.foxminded.carrest.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,10 +12,9 @@ import ua.foxminded.carrest.service.AuthService;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-
     private final AuthService authService;
 
-    @GetMapping("/getToken")
+    @PostMapping("/login")
     public Auth0TokenResponse getToken(@RequestBody AuthRequest authRequest) {
 
         return authService.getToken(authRequest.getUsername(), authRequest.getPassword());

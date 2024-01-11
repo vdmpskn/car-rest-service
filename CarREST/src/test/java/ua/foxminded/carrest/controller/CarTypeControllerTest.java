@@ -17,8 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,12 +29,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
+import ua.foxminded.carrest.config.SecurityConfig;
 import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.model.CarBodyType;
 import ua.foxminded.carrest.dao.model.CarType;
 import ua.foxminded.carrest.service.CarTypeService;
 
 @WebMvcTest(CarTypeController.class)
+@Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 class CarTypeControllerTest {
 
     @Autowired

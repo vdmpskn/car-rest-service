@@ -15,9 +15,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
             .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+            .requestMatchers(HttpMethod.POST,"/login").permitAll()
+            .anyRequest().authenticated()
             .and()
-            .oauth2ResourceServer()
-            .jwt();
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+            .csrf().disable();
         return http.build();
     }
 }
