@@ -1,40 +1,37 @@
 package ua.foxminded.carrest.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.web.context.WebApplicationContext;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ua.foxminded.carrest.config.SecurityConfig;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import ua.foxminded.carrest.custom.exceptions.AuthException;
 import ua.foxminded.carrest.custom.response.Auth0TokenResponse;
 import ua.foxminded.carrest.custom.response.AuthRequest;
 import ua.foxminded.carrest.service.AuthService;
 
-@WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
-class AuthControllerTest {
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.io.IOException;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+public class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,28 +42,54 @@ class AuthControllerTest {
     @MockBean
     private AuthService authService;
 
-    @InjectMocks
-    private AuthController authController;
+    private MockWebServer mockWebServer;
+
+    @Before
+    public void setUp() throws IOException {
+        mockWebServer = new MockWebServer();
+        mockWebServer.start();
+
+        when(authService.getToken(any(), any()))
+            .thenReturn(new Auth0TokenResponse("mocked_token",3600, "bearer"));
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        mockWebServer.shutdown();
+    }
 
     @Test
-    void shouldReturnTokenWhenCredentialsAreValid() throws Exception {
-        AuthRequest authRequest = new AuthRequest("testusr@gmail.com", "123321testT");
-        Auth0TokenResponse expectedToken = new Auth0TokenResponse("accessToken", 3600, "Bearer");
-        when(authService.getToken(authRequest.getUsername(), authRequest.getPassword())).thenReturn(expectedToken);
+    public void shouldGetToken_ValidCredentials() throws Exception {
+        AuthRequest authRequest = new AuthRequest("test_user", "test_password");
+        String requestBody = objectMapper.writeValueAsString(authRequest);
+
+        mockWebServer.enqueue(new MockResponse()
+            .setResponseCode(200)
+            .setBody("{\"token\": \"mocked_token\", \"tokenType\": \"bearer\"}")
+            .setHeader("Content-Type", "application/json"));
 
         mockMvc.perform(post("/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(authRequest)))
-            .andExpect(status().isOk());
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.access_token").value("mocked_token"));
     }
 
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    @Test
+    public void shouldNotGetToken_AuthServiceError() throws Exception {
+        AuthRequest authRequest = new AuthRequest("test_user", "test_password");
+        String requestBody = objectMapper.writeValueAsString(authRequest);
 
+        when(authService.getToken(any(), any()))
+            .thenThrow(new RuntimeException(new AuthException("Authentication failed")));
+
+        mockMvc.perform(post("/login")
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.error").value("Authentication failed"));
+    }
 }
+
+
 

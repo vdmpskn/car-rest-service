@@ -21,3 +21,8 @@ okta:
   oauth2:
     issuer: https://dev-nwxbmgmx1lcshk46.us.auth0.com/
     audience: http://localhost:8080/
+
+auth-service:
+  audience: http://localhost:8080/
+  client-id: LTeyfVdRTNVr0cLcWXvEJG3QBdhFsjRg
+  client-secret: zdK6F6CCz95q8ofCu7Cd4RG-eI8pkh60d6JWzEx72q4xgNKt4FtQ2lj_ztZFlKUi

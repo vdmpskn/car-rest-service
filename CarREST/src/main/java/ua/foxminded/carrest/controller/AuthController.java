@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ua.foxminded.carrest.custom.exceptions.AuthException;
 import ua.foxminded.carrest.custom.response.Auth0TokenResponse;
 import ua.foxminded.carrest.custom.response.AuthRequest;
 import ua.foxminded.carrest.service.AuthService;
@@ -16,8 +17,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public Auth0TokenResponse getToken(@RequestBody AuthRequest authRequest) {
-
-        return authService.getToken(authRequest.getUsername(), authRequest.getPassword());
+        try {
+            return authService.getToken(authRequest.getUsername(), authRequest.getPassword());
+        }
+        catch (AuthException ex) {
+            throw new RuntimeException("Authentication failed", ex);
+        }
     }
-
 }
