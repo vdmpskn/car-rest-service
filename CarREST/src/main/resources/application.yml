@@ -3,7 +3,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/carrest
     username: postgres
-    password: 1111
+    password: ${DB_PASSWORD}
   jpa:
     generate-ddl: true
   flyway:
@@ -26,3 +26,8 @@ auth-service:
   audience: http://localhost:8080/
   client-id: LTeyfVdRTNVr0cLcWXvEJG3QBdhFsjRg
   client-secret: zdK6F6CCz95q8ofCu7Cd4RG-eI8pkh60d6JWzEx72q4xgNKt4FtQ2lj_ztZFlKUi
+
+rest-template:
+  connect-timeout-seconds: 5
+  read-timeout-seconds: 5
+

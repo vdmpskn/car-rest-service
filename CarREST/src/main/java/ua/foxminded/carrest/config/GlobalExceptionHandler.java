@@ -14,7 +14,7 @@ import ua.foxminded.carrest.custom.exceptions.AuthException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public Map<String, Object> handleAuthException(AuthException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("error", "Authentication failed");

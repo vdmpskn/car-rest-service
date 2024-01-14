@@ -86,7 +86,7 @@ public class AuthControllerTest {
         mockMvc.perform(post("/login")
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError())
+            .andExpect(status().isBadGateway())
             .andExpect(jsonPath("$.error").value("Authentication failed"));
     }
 }
