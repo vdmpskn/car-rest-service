@@ -19,6 +19,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.custom.response.CarSearchResponse;
 import ua.foxminded.carrest.dao.dto.CarDTO;
@@ -32,6 +39,12 @@ import ua.foxminded.carrest.service.CarService;
 public class CarController {
     private final CarService carService;
 
+
+    @Operation(summary = "Get all cars")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Found all cars",
+            content = {@Content(mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = CarDTO.class)))})})
     @GetMapping
     public CarSearchResponse getAllCars(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "10") int size,
@@ -56,6 +69,13 @@ public class CarController {
             .build();
     }
 
+    @Operation(summary = "Get car with id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Found car with id",
+            content = {@Content(mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = CarDTO.class)))}),
+        @ApiResponse(responseCode = "404", description = "Car with id not found",
+            content = @Content(mediaType = "application/json"))})
     @GetMapping("/{carId}")
     public CarDTO getCarById(@PathVariable Long carId) {
         CarDTO carDTO = carService.findById(carId);
@@ -65,6 +85,10 @@ public class CarController {
         return carDTO;
     }
 
+    @Operation(summary = "Create new car", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Car has been created",
+            content = @Content)})
     @PostMapping("/producer/{producerName}/models/{modelName}/years/{year}")
     public CarDTO createCar(@PathVariable String producerName,
                          @PathVariable String modelName,
@@ -85,6 +109,10 @@ public class CarController {
         return carService.save(car);
     }
 
+    @Operation(summary = "Update car year", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Car has been updated",
+            content = @Content)})
     @PostMapping("/update/car/{carId}/year/{newCarYear}")
     public CarDTO updateCarYear(@PathVariable Long carId,
                              @PathVariable int newCarYear){
@@ -96,11 +124,25 @@ public class CarController {
         return updatedCar;
     }
 
+    @Operation(summary = "Update car")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Car has been updated",
+            content = {@Content(mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = CarDTO.class)))})})
     @PutMapping("/{carId}")
     public CarDTO updateCar(@PathVariable Long carId, @RequestBody CarDTO updatedCar){
         return carService.updateCarById(carId, updatedCar);
     }
 
+
+    @Operation(summary = "Delete car", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Delete the brand",
+            content = @Content),
+        @ApiResponse(responseCode = "400", description = "Car was not deleted",
+            content = @Content(mediaType = "text/plain")),
+        @ApiResponse(responseCode = "404", description = "Car not found",
+            content = @Content(mediaType = "application/json"))})
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     @DeleteMapping("/producer/{producerName}/models/{modelName}/years/{year}")
     public void deleteCar(@PathVariable String producerName,

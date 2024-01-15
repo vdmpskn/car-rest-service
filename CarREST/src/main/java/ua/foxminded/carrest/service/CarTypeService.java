@@ -29,10 +29,16 @@ public class CarTypeService {
         return carTypeConverter.convertToDTO(carTypeRepository.save(carTypeConverter.convertToModel(carType)));
     }
 
-    public CarTypeDTO getCarTypeById(Long id){
-        Optional<CarType> carType = carTypeRepository.findById(id);
+    public CarTypeDTO getCarTypeById(Long id) {
+        Optional<CarType> carTypeOptional = carTypeRepository.findById(id);
 
-        return carTypeConverter.convertToDTO(carType.get());
+        if (carTypeOptional.isPresent()) {
+            CarType carType = carTypeOptional.get();
+
+            return carTypeConverter.convertToDTO(carType);
+        } else {
+            throw new EntityNotFoundException("CarType with ID " + id + " not found");
+        }
     }
 
     public CarTypeDTO updateById(Long id, CarType updatedCarType) {
@@ -48,9 +54,13 @@ public class CarTypeService {
         }
     }
 
+    public void deleteById(Long id) {
+        Optional<CarType> carTypeOptional = carTypeRepository.findById(id);
 
-    public void deleteById(Long id){
-       carTypeRepository.delete(carTypeRepository.findById(id).get());
+        if (carTypeOptional.isPresent()) {
+            carTypeRepository.delete(carTypeOptional.get());
+        } else {
+            throw new EntityNotFoundException("CarType with ID " + id + " not found");
+        }
     }
-
 }

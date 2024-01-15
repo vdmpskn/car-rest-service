@@ -15,8 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ua.foxminded.carrest.config.SecurityConfig;
+import ua.foxminded.carrest.custom.response.AuthRequest;
 import ua.foxminded.carrest.dao.dto.CarDTO;
 import ua.foxminded.carrest.dao.dto.CarTypeDTO;
 import ua.foxminded.carrest.dao.dto.ProducerDTO;
@@ -34,6 +38,8 @@ import ua.foxminded.carrest.dao.model.CarBodyType;
 import ua.foxminded.carrest.service.CarService;
 
 @WebMvcTest(CarController.class)
+@Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 class CarControllerTest {
 
     @Autowired
@@ -148,6 +154,7 @@ class CarControllerTest {
 
     @Test
     void shouldReturnNotFoundWhenCarForYearUpdateDoesNotExist() throws Exception {
+        AuthRequest authRequest = new AuthRequest("testusr@gmail.com", "123321testT");
         when(carService.updateCarYear(Mockito.anyLong(), Mockito.anyInt())).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/cars/update/car/1/year/2022"))

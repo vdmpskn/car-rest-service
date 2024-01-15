@@ -44,13 +44,20 @@ public class CarService{
             .map(converter::convertToDTO);
     }
 
-    public CarDTO updateCarYear(Long carId, int newCarYear){
+    public CarDTO updateCarYear(Long carId, int newCarYear) {
+        Optional<Car> modifiedCarOptional = carRepository.findById(carId);
 
-       Optional<CarDTO> modifiedCar = carRepository.findById(carId).map(converter::convertToDTO);
+        if (modifiedCarOptional.isPresent()) {
+            Car modifiedCar = modifiedCarOptional.get();
 
-       modifiedCar.get().setYear(newCarYear);
+            modifiedCar.setYear(newCarYear);
 
-       return modifiedCar.get();
+            carRepository.save(modifiedCar);
+            return converter.convertToDTO(modifiedCar);
+        }
+        else {
+            throw new EntityNotFoundException("Car with ID " + carId + " not found");
+        }
     }
 
     public CarDTO findById(Long carId) {
@@ -61,14 +68,24 @@ public class CarService{
     }
 
 
-    public CarDTO updateCarById(Long carId, CarDTO updatedCar){
-        Optional<CarDTO> currentCar = carRepository.findById(carId).map(converter::convertToDTO);
+    public CarDTO updateCarById(Long carId, CarDTO updatedCar) {
+        Optional<Car> currentCarOptional = carRepository.findById(carId);
 
-        currentCar.get().setCarType(updatedCar.getCarType());
-        currentCar.get().setYear(updatedCar.getYear());
-        currentCar.get().setProducer(updatedCar.getProducer());
+        if (currentCarOptional.isPresent()) {
+            Car currentCar = currentCarOptional.get();
 
-        return converter.convertToDTO(carRepository.save(converter.convertToModel(currentCar.get())));
+            CarDTO carDTO = converter.convertToDTO(currentCar);
+
+            carDTO.setCarType(updatedCar.getCarType());
+            carDTO.setYear(updatedCar.getYear());
+            carDTO.setProducer(updatedCar.getProducer());
+
+            Car updatedCarModel = carRepository.save(converter.convertToModel(carDTO));
+
+            return converter.convertToDTO(updatedCarModel);
+        } else {
+            throw new EntityNotFoundException("Car with ID " + carId + " not found");
+        }
     }
 
     @Transactional

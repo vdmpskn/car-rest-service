@@ -1,8 +1,32 @@
-
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/carrest
     username: postgres
-    password: 1111
+    password: ${DB_PASSWORD}
   jpa:
     generate-ddl: true
+  flyway:
+    baseline-on-migrate: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "https://dev-nwxbmgmx1lcshk46.us.auth0.com/"
+logging:
+  level:
+    org.springframework.security: debug
+okta:
+  oauth2:
+    issuer: https://dev-nwxbmgmx1lcshk46.us.auth0.com/
+    audience: http://localhost:8080/
+
+auth-service:
+  audience: http://localhost:8080/
+  client-id: LTeyfVdRTNVr0cLcWXvEJG3QBdhFsjRg
+  client-secret: zdK6F6CCz95q8ofCu7Cd4RG-eI8pkh60d6JWzEx72q4xgNKt4FtQ2lj_ztZFlKUi
+
+rest-template:
+  connect-timeout-seconds: 5
+  read-timeout-seconds: 5
+

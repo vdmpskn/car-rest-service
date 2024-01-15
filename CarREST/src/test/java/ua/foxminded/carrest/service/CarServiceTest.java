@@ -15,6 +15,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -97,20 +99,33 @@ class CarServiceTest {
     }
 
     @Test
-    void shouldUpdateCarYear() {
-        Long carId = 1L;
-        int newCarYear = 2022;
+    void shouldUpdateCarYearSuccessfully() throws Exception {
+        Car car = new Car();
+        car.setId(1L);
+        car.setYear(2021);
+        Optional<Car> carOptional = Optional.of(car);
 
-        CarDTO carDTO = new CarDTO();
-        carDTO.setYear(2021);
+        Car updatedCar = new Car();
+        updatedCar.setId(1L);
+        updatedCar.setYear(2023);
 
-        when(carRepository.findById(eq(carId))).thenReturn(Optional.of(new Car()));
-        when(converter.convertToDTO(any())).thenReturn(carDTO);
+        CarDTO expectedCarDTO = new CarDTO();
+        expectedCarDTO.setId(1L);
+        expectedCarDTO.setYear(2023);
 
-        CarDTO result = carService.updateCarYear(carId, newCarYear);
+        when(carRepository.findById(1L)).thenReturn(carOptional);
+        when(carRepository.save(updatedCar)).thenReturn(updatedCar);
+        when(converter.convertToDTO(updatedCar)).thenReturn(expectedCarDTO);
 
-        assertEquals(newCarYear, result.getYear());
+        CarDTO actualCarDTO = carService.updateCarYear(1L, 2023);
+
+        assertEquals(expectedCarDTO, actualCarDTO);
+
+        verify(carRepository).findById(1L);
+        verify(carRepository).save(updatedCar);
+        verify(converter).convertToDTO(updatedCar);
     }
+
 
     @Test
     void shouldFindByIdWhenCarExists() {
@@ -220,7 +235,7 @@ class CarServiceTest {
     void shouldNotUpdateCarYear_InvalidCarId() {
         when(carRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> carService.updateCarYear(999L, 2022));
+        assertThrows(EntityNotFoundException.class, () -> carService.updateCarYear(999L, 2022));
     }
 
     @Test
@@ -234,7 +249,7 @@ class CarServiceTest {
     void shouldNotUpdateCarById_InvalidCarId() {
         when(carRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> carService.updateCarById(999L, new CarDTO()));
+        assertThrows(EntityNotFoundException.class, () -> carService.updateCarById(999L, new CarDTO()));
     }
 
     @Test
