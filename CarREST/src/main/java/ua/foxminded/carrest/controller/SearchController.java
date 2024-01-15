@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import ua.foxminded.carrest.custom.response.CarSearchResponse;
 import ua.foxminded.carrest.dao.dto.CarDTO;
@@ -23,6 +28,13 @@ public class SearchController {
     private final CarService carService;
 
     @GetMapping("/producer/{producerName}")
+    @Operation(summary = "Search cars by producer name")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Found cars by producer name",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = CarSearchResponse.class))}),
+        @ApiResponse(responseCode = "400", description = "Invalid request",
+            content = @Content(mediaType = "application/json"))})
     public CarSearchResponse searchByProducerName(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @RequestParam(defaultValue = "id") String sortBy,
@@ -42,6 +54,13 @@ public class SearchController {
     }
 
     @GetMapping("/model/{modelName}")
+    @Operation(summary = "Search cars by model name")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Found cars by model name",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = CarSearchResponse.class))}),
+        @ApiResponse(responseCode = "400", description = "Invalid request",
+            content = @Content(mediaType = "application/json"))})
     public CarSearchResponse searchByModelName(@PathVariable String modelName,
                                           @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size,
@@ -62,6 +81,13 @@ public class SearchController {
     }
 
     @GetMapping("/year/{minYear}_{maxYear}")
+    @Operation(summary = "Search cars by year range")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Found cars by year range",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = CarSearchResponse.class))}),
+        @ApiResponse(responseCode = "400", description = "Invalid request",
+            content = @Content(mediaType = "application/json"))})
     public CarSearchResponse searchByYearRange(@PathVariable Integer minYear,
                                           @PathVariable Integer maxYear,
                                           @RequestParam(defaultValue = "0") int page,
