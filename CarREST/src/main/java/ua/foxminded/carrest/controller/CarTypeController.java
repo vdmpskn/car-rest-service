@@ -41,9 +41,7 @@ public class CarTypeController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Found all cars types",
             content = {@Content(mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = CarTypeDTO.class)))}),
-        @ApiResponse(responseCode = "500", description = "Cars types not found",
-            content = @Content(mediaType = "application/json"))})
+                array = @ArraySchema(schema = @Schema(implementation = CarTypeDTO.class)))})})
     public CarTypeSearchResponse getAllCarTypes(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "10") int size,
                                                 @RequestParam(defaultValue = "id") String sortBy,
@@ -75,7 +73,7 @@ public class CarTypeController {
         @ApiResponse(responseCode = "200", description = "Found car type",
             content = {@Content(mediaType = "application/json",
                 array = @ArraySchema(schema = @Schema(implementation = CarTypeDTO.class)))}),
-        @ApiResponse(responseCode = "500", description = "Cars type not found",
+        @ApiResponse(responseCode = "404", description = "Cars type not found",
             content = @Content(mediaType = "application/json"))})
     public CarTypeDTO getCarTypeById(@PathVariable Long carTypeId){
         CarTypeDTO carTypeDTO = carTypeService.getCarTypeById(carTypeId);

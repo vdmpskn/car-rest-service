@@ -44,9 +44,7 @@ public class CarController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Found all cars",
             content = {@Content(mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = CarDTO.class)))}),
-        @ApiResponse(responseCode = "500", description = "Cars not found",
-            content = @Content(mediaType = "application/json"))})
+                array = @ArraySchema(schema = @Schema(implementation = CarDTO.class)))})})
     @GetMapping
     public CarSearchResponse getAllCars(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "10") int size,
@@ -76,7 +74,7 @@ public class CarController {
         @ApiResponse(responseCode = "200", description = "Found car with id",
             content = {@Content(mediaType = "application/json",
                 array = @ArraySchema(schema = @Schema(implementation = CarDTO.class)))}),
-        @ApiResponse(responseCode = "500", description = "Car with id not found",
+        @ApiResponse(responseCode = "404", description = "Car with id not found",
             content = @Content(mediaType = "application/json"))})
     @GetMapping("/{carId}")
     public CarDTO getCarById(@PathVariable Long carId) {

@@ -33,7 +33,7 @@ public class SearchController {
         @ApiResponse(responseCode = "200", description = "Found cars by producer name",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = CarSearchResponse.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request",
+        @ApiResponse(responseCode = "404", description = "Producer not found",
             content = @Content(mediaType = "application/json"))})
     public CarSearchResponse searchByProducerName(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
@@ -59,7 +59,7 @@ public class SearchController {
         @ApiResponse(responseCode = "200", description = "Found cars by model name",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = CarSearchResponse.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request",
+        @ApiResponse(responseCode = "404", description = "Model not found",
             content = @Content(mediaType = "application/json"))})
     public CarSearchResponse searchByModelName(@PathVariable String modelName,
                                           @RequestParam(defaultValue = "0") int page,
@@ -86,7 +86,7 @@ public class SearchController {
         @ApiResponse(responseCode = "200", description = "Found cars by year range",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = CarSearchResponse.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request",
+        @ApiResponse(responseCode = "404", description = "Car not found",
             content = @Content(mediaType = "application/json"))})
     public CarSearchResponse searchByYearRange(@PathVariable Integer minYear,
                                           @PathVariable Integer maxYear,
